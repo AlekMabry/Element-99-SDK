@@ -1,0 +1,2 @@
+block ground (-128, -128, -5, 128, 128, 0) ("tex_grass1_1024.jpg",1,1) ("shd_diffuse")
+entity 1 (player, 0, 0, 0)
