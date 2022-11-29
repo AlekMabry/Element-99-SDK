@@ -25,9 +25,36 @@
         <arguments>
           <argument>
             <kind>1</kind>
+            <string>/// Load Vertex Format
+
+global.tex_Albedo = shader_get_sampler_index(shd_pbr, "tex_Albedo");
+global.tex_Normal = shader_get_sampler_index(shd_pbr, "tex_Normal");
+global.tex_Material = shader_get_sampler_index(shd_pbr, "tex_Material");
+
+FormatE99();
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
             <string>///Set Directory Path and Load Models
 
-directoryPath = "maps\garage\";
+directoryPath = "maps\EngineHall\";
 
 temp = d3d_model_create();
 modelLoader(); //Load Model in Script Format
@@ -40,6 +67,7 @@ d3d_model_save(temp, "models\RocketLauncher.d3d");
 //d3d_model_load(pumpkin[1], "maps\garage\"+"models\Pumpkin01.d3d");
 
 global.debugString = "";
+texture_set_repeat(true);
 </string>
           </argument>
         </arguments>
@@ -82,14 +110,27 @@ global.texName = ds_map_create();
 global.lightmaps[0] = tex_missing;
 global.lightmapName = ds_map_create();
 
+global.lightCount = 0;
+global.lights = ds_map_create();
+
 temp = d3d_model_create();
 modelLoader(); //Load Model in Script Format
 global.models[0] = temp;
+global.modelTypes[0] = 0;   // 0 is d3d, 1 is E99
 
 global.modelName = ds_map_create();
 
 loadTextures();
 loadModels();
+loadLights();
+
+var global.cubemap_negative_x[0] = surface_create(256, 256);
+var global.cubemap_positive_x[0] = surface_create(256, 256);
+var global.cubemap_negative_y[0] = surface_create(256, 256);
+var global.cubemap_positive_y[0] = surface_create(256, 256);
+var global.cubemap_negative_z[0] = surface_create(256, 256);
+var global.cubemap_positive_z[0] = surface_create(256, 256);
+var global.cubemap[0] = surface_create(1024, 1024);
 </string>
           </argument>
         </arguments>
@@ -110,8 +151,34 @@ loadModels();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>d3d_start();
+            <string>/// 3D Initialization
+d3d_start();
 d3d_set_culling(true);
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>viewMode = 0;
+viewCollision = 0;
+currentCamera = 0;
+fov = 120;
+cubemaps_initialized = false;
 
 IsCollision = 0;
 
@@ -135,6 +202,9 @@ movedir[2] = 0;
 
 direction = 0;
 pitch = 0;
+isCrouched = false;
+crouchAnimationValue = 0;   // How much the player is currently crouched
+
 
 debug = 0;
 debug1 = 0;
@@ -142,13 +212,15 @@ debug2[0] = 0;
 debug2[1] = 0;
 debug2[2] = 0;
 
-sv_accelerate = 42; //5.5
-sv_airaccelerate = 12;
+sv_accelerate = 84; //5.5
+sv_airaccelerate = 10;
 sv_friction = 5.5;
-sv_maxspeedground = 400;
-sv_maxspeedair = 400;
-sv_gravity = 16;
-sv_jump = 10;
+sv_maxspeedground = 800;
+sv_maxspeedair = 800;
+sv_gravity = 32;
+sv_jump = 32;
+sv_crouchMax = 18;          // Crouch amount
+sv_crouchIncrement = 36;    // Crouch velocity in Units/Second
 </string>
           </argument>
         </arguments>
@@ -234,6 +306,48 @@ AABBprev[5] = z+72 //Top Wall
     <event eventtype="3" enumb="0">
       <action>
         <libid>1</libid>
+        <id>612</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>-1</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_if_variable</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>0</kind>
+            <string>viewMode</string>
+          </argument>
+          <argument>
+            <kind>0</kind>
+            <string>0</string>
+          </argument>
+          <argument>
+            <kind>4</kind>
+            <string>0</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>422</id>
+        <kind>1</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>0</useapplyto>
+        <exetype>0</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+      </action>
+      <action>
+        <libid>1</libid>
         <id>603</id>
         <kind>7</kind>
         <userelative>0</userelative>
@@ -301,6 +415,40 @@ pitch -= change_y
     
 if pitch &gt; 80 then pitch = 80;
 if pitch &lt;-80 then pitch =-80;
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Update Crouch
+if (keyboard_check(vk_control)) {
+    isCrouched = true;
+    if (crouchAnimationValue &lt; sv_crouchMax) {
+        crouchAnimationValue += (sv_crouchIncrement / 60);
+        // z += (sv_crouchIncrement / 60);
+    }
+} else {
+    isCrouched = false;
+    if (crouchAnimationValue &gt; 0) {
+        crouchAnimationValue -= (sv_crouchIncrement / 60);
+        // z -= (sv_crouchIncrement / 60);
+    }
+}
 </string>
           </argument>
         </arguments>
@@ -574,8 +722,8 @@ AABB[0] = x-16; //Left Wall
 AABB[1] = x+16; //Right Wall
 AABB[2] = y-16; //Front Wall
 AABB[3] = y+16; //Back Wall
-AABB[4] = z //Bottom Wall
-AABB[5] = z+72 //Top Wall
+AABB[4] = z+crouchAnimationValue; //Bottom Wall
+AABB[5] = z+(72-crouchAnimationValue); //Top Wall
 </string>
           </argument>
         </arguments>
@@ -677,6 +825,20 @@ if (ds_list_empty(planeList)) {} else {
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>424</id>
+        <kind>2</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>0</useapplyto>
+        <exetype>0</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+      </action>
     </event>
     <event eventtype="8" enumb="0">
       <action>
@@ -697,38 +859,241 @@ if (ds_list_empty(planeList)) {} else {
             <kind>1</kind>
             <string>draw_set_colour(c_white);
 
-xa = cos(direction*pi/180);
-ya = -sin(direction*pi/180);
-za = tan(degtorad(pitch));
-d3d_set_projection_ext(x, y, z+cameraZ, x+xa, y+ya, z+cameraZ+za, 0, 0, 1, 90, 16/9, 0.1, 16000);
+if !surface_exists(global.cubemap[0])
+{
+    RenderCubemaps();
+}
 
-//d3d_model_draw(pumpkin[0], -256, 0, 0, background_get_texture(tex_missing));
-//d3d_model_draw(pumpkin[1], 256, 0, 0, background_get_texture(tex_missing));
-
-//draw_collision();
-draw_floors();
-draw_walls();
-//draw_blocks();
-//draw_wedges();
-draw_models();
-
-d3d_set_projection_ortho(0, 0, 1280, 720, 0);
-draw_text(10, 10, string(velocity[0]));
-draw_text(10, 26, string(velocity[1]));
-draw_text(10, 42, string(velocity[2]));
-draw_text(10, 58, string(60*vec2mag(velocity)));
-draw_text(10, 74, "projVel: "+string(debug));
-draw_text(10, 90, "accelVel: "+string(debug1));
-draw_text(10, 106, "x: "+string(x));
-draw_text(10, 122, "y: "+string(y));
-draw_text(10, 138, "z: "+string(z));
-draw_text(10, 154, global.debugString);
-draw_text(10, 170, string(array_length_1d(global.models)));
-draw_text(10, 186, "FPS = " + string(fps_real));
-draw_text(10, 186+16, "Room FPS = " + string(fps));
-
-draw_set_colour(c_lime);
-draw_circle(1280/2, 720/2, 5, true);
+switch (viewMode)
+{
+    case 0:
+        xa = cos(direction*pi/180);
+        ya = -sin(direction*pi/180);
+        za = tan(degtorad(pitch));
+        d3d_set_projection_ext(x, y, z+cameraZ, x+xa, y+ya, z+cameraZ+za, 0, 0, 1, 90, 16/9, 0.1, 16000);
+        
+        //d3d_model_draw(pumpkin[0], -256, 0, 0, background_get_texture(tex_missing));
+        //d3d_model_draw(pumpkin[1], 256, 0, 0, background_get_texture(tex_missing));
+        
+        //draw_collision();
+        //draw_floors();
+        //draw_walls();
+        // draw_blocks();
+        //draw_wedges();
+        if (viewCollision == 1)
+        {
+            draw_collision();
+        } else {
+            draw_models();
+        }
+        
+        d3d_set_projection_ortho(0, 0, 1280, 720, 0);
+        draw_text(10, 10, string(velocity[0]));
+        draw_text(10, 26, string(velocity[1]));
+        draw_text(10, 42, string(velocity[2]));
+        draw_text(10, 58, string(60*vec2mag(velocity)));
+        draw_text(10, 74, "projVel: "+string(debug));
+        draw_text(10, 90, "accelVel: "+string(debug1));
+        draw_text(10, 106, "x: "+string(x));
+        draw_text(10, 122, "y: "+string(y));
+        draw_text(10, 138, "z: "+string(z));
+        draw_text(10, 154, global.debugString);
+        draw_text(10, 170, string(array_length_1d(global.models)));
+        draw_text(10, 186, "FPS: " + string(fps_real));
+        draw_text(10, 186+16, "Room FPS: " + string(fps));
+        
+        draw_set_colour(c_lime);
+        draw_circle(1280/2, 720/2, 5, true);
+        break;
+        
+    case 1:
+        xa = cos(direction*pi/180);
+        ya = -sin(direction*pi/180);
+        za = tan(degtorad(pitch));
+        d3d_set_projection_ext(x, y, z+cameraZ, x+xa, y+ya, z+cameraZ+za, 0, 0, 1, fov, 1, 0.1, 16000);
+        
+        if (viewCollision == 1)
+        {
+            draw_collision();
+        } else {
+            draw_models();
+        }
+        break;
+        
+    case 2:
+        d3d_set_projection_ortho(0, 0, 1024, 1024, 0);
+        draw_set_font(fnt_label);
+        // Left (-X)
+        if (surface_exists(global.cubemap_negative_x[0]))
+        {
+            draw_surface(global.cubemap_negative_x[0], 0, 256);
+            draw_text(0, 256, "Left");
+        }
+        // Front (-Y)
+        if (surface_exists(global.cubemap_negative_y[0]))
+        {
+            draw_surface(global.cubemap_negative_y[0], 256, 256);
+            draw_text(256, 256, "Front");
+        }
+        // Right (X)
+        if (surface_exists(global.cubemap_positive_x[0]))
+        {
+            draw_surface(global.cubemap_positive_x[0], 512, 256);
+            draw_text(512, 256, "Right");
+        }
+        // Back (Y)
+        if (surface_exists(global.cubemap_positive_y[0]))
+        {
+            draw_surface(global.cubemap_positive_y[0], 768, 256);
+            draw_text(768, 256, "Back");
+        }
+        // Top (Z)
+        if (surface_exists(global.cubemap_positive_z[0]))
+        {
+            draw_surface(global.cubemap_positive_z[0], 256, 0);
+            draw_text(256, 0, "Top");
+        }
+        // Bottom (Z)
+        if (surface_exists(global.cubemap_negative_z[0]))
+        {
+            draw_surface(global.cubemap_negative_z[0], 256, 512);
+            draw_text(256, 512, "Bottom");
+        }
+        
+        break;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="88">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Change Current Camera
+var cameraList = ds_map_find_value(global.mapData, "cameras");
+if (!ds_list_empty(cameraList))
+{
+    currentCamera++;
+    var numberOfCameras = ds_list_size(cameraList);
+    if (currentCamera &gt;= numberOfCameras)
+    {
+        currentCamera = 0;
+    }
+    x = ds_map_find_value(cameraList[| currentCamera], "x");
+    y = -ds_map_find_value(cameraList[| currentCamera], "y");
+    z = ds_map_find_value(cameraList[| currentCamera], "z");
+    pitch = ds_map_find_value(cameraList[| currentCamera], "rotationx") - 95;
+    direction = ds_map_find_value(cameraList[| currentCamera], "rotationz") - 270;
+    fov = ds_map_find_value(cameraList[| currentCamera], "fov");
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="86">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Swap Viewmodes
+viewMode++;
+if (viewMode &gt; 2)
+{
+    viewMode = 0;
+}
+switch (viewMode)
+{
+    case 0:
+        window_set_size(room_width, room_height);
+        surface_resize(application_surface, room_width, room_height);
+        window_center();
+        break;
+    case 1:
+        /* Convert from rectangular view to square view */
+        window_set_size(512, 512);
+        surface_resize(application_surface, 1024, 1024);
+        window_set_position(0, 0);
+        break;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="80">
+      <action>
+        <libid>1</libid>
+        <id>802</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>0</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_snapshot</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>2</kind>
+            <string>snapshot.png</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="67">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// Swap View Collision
+if (viewCollision = 0)
+{
+    viewCollision = 1;
+} else {
+    viewCollision = 0;
+}
 </string>
           </argument>
         </arguments>

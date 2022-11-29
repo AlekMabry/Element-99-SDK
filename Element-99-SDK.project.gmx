@@ -3,7 +3,28 @@
   <Configs name="configs">
     <Config>Configs\Default</Config>
   </Configs>
-  <NewExtensions/>
+  <datafiles number="1" name="datafiles">
+    <datafile>
+      <name>gmtf.dll</name>
+      <exists>-1</exists>
+      <size>6656</size>
+      <exportAction>2</exportAction>
+      <exportDir></exportDir>
+      <overwrite>0</overwrite>
+      <freeData>-1</freeData>
+      <removeEnd>0</removeEnd>
+      <store>0</store>
+      <ConfigOptions>
+        <Config name="Default">
+          <CopyToMask>9223372036854775807</CopyToMask>
+        </Config>
+      </ConfigOptions>
+      <filename>gmtf.dll</filename>
+    </datafile>
+  </datafiles>
+  <NewExtensions>
+    <extension index="0">extensions\d3dx</extension>
+  </NewExtensions>
   <sounds name="sound"/>
   <sprites name="sprites"/>
   <backgrounds name="background">
@@ -18,6 +39,7 @@
     <background>background\lightmap_bottomWallMiddle</background>
     <background>background\lightmap_topWallBig</background>
     <background>background\background10</background>
+    <background>background\tex_CubemapTest</background>
   </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
@@ -36,6 +58,10 @@
       <scripts name="shader_init">
         <script>scripts\init_reflectionLightmapped.gml</script>
       </scripts>
+      <script>scripts\loadLights.gml</script>
+      <script>scripts\FormatE99.gml</script>
+      <script>scripts\LoadE99.gml</script>
+      <script>scripts\RenderCubemaps.gml</script>
     </scripts>
     <scripts name="Movement">
       <script>scripts\Accelerate.gml</script>
@@ -77,13 +103,20 @@
     <scripts name="NPC">
       <script>scripts\reload.gml</script>
     </scripts>
+    <script>scripts\d3d_enable_texturefiltering.gml</script>
   </scripts>
   <shaders name="shaders">
     <shader type="GLSLES">shaders\shd_lightmapPlain.shader</shader>
     <shader type="GLSLES">shaders\shd_lightmapPlainClipped.shader</shader>
     <shader type="GLSLES">shaders\shd_reflect.shader</shader>
     <shader type="GLSLES">shaders\shd_reflectionLightmap.shader</shader>
+    <shader type="GLSLES">shaders\shd_pbr.shader</shader>
+    <shader type="GLSLES">shaders\shd_pbr_prepass.shader</shader>
+    <shader type="GLSLES">shaders\shd_cubemap.shader</shader>
   </shaders>
+  <fonts name="fonts">
+    <font>fonts\fnt_label</font>
+  </fonts>
   <objects name="objects">
     <object>objects\obj_player</object>
     <object>objects\obj_npc</object>

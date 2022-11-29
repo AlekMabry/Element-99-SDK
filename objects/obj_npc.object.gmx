@@ -411,7 +411,7 @@ ya = -sin(obj_player.direction*pi/180);
 za = tan(degtorad(obj_player.pitch));
 d3d_set_projection_ext(obj_player.x, obj_player.y, obj_player.z+obj_player.cameraZ, obj_player.x+xa, obj_player.y+ya, obj_player.z+obj_player.cameraZ+za, 0, 0, 1, 90, 16/9, 0.1, 16000);
 
-d3d_draw_block(AABB[0], AABB[2], AABB[4], AABB[1], AABB[3], AABB[5], background_get_texture(tex_floor), 1, 1);
+//d3d_draw_block(AABB[0], AABB[2], AABB[4], AABB[1], AABB[3], AABB[5], background_get_texture(tex_floor), 1, 1);
 </string>
           </argument>
         </arguments>

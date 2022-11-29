@@ -39,10 +39,7 @@ void main()
     //Lightmaps are taken from a main texturesheet. This texture sheet is 256 in length
     //however lightmap is 192 in length. This is 0.75 the length of it.
     vec2 distortedTexcoord = vec2( ((v_vTexcoord.x*lightmapScale.x)+lightmapPos.x) / lightmapRepeat.x, ((v_vTexcoord.y*lightmapScale.y)+lightmapPos.y) / lightmapRepeat.y );
-    float brightness = texture2D(lightmap, distortedTexcoord).b;
-    if (brightness > 1.0) {
-        brightness = 1.0;
-    }
+    vec3 brightness = texture2D(lightmap, distortedTexcoord).rgb;
     vec3 colourRegular = texture2D( gm_BaseTexture, v_vTexcoord ).rgb;
     vec4 colourFinal = vec4(brightness*colourRegular, 1.0);
     gl_FragColor = v_vColour * colourFinal;
