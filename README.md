@@ -8,7 +8,7 @@ and a custom map format.
 <img src="screenshots/E99_SDK_PBRMaterials.png" alt="PBR Materials in E99 SDK"/>
 
 ## Map Format
-The engine lacks a map editor, so maps are stored in a human-editable .JSON format.
+Maps are stored in a human-editable .JSON format:
 
 ```
 {
