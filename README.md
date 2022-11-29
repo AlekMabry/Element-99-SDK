@@ -5,7 +5,7 @@ and a custom map format.
 
 ## PBR
 
-<img src="screenshots/E99_SDK_PBRMaterials.jpg" alt="PBR Materials in E99 SDK"/>
+<img src="screenshots/E99_SDK_PBRMaterials.png" alt="PBR Materials in E99 SDK"/>
 
 ## Map Format
 The engine lacks a map editor, so maps are stored in a human-editable .JSON format.
@@ -53,4 +53,4 @@ Copy the `Element_99_SDK` asset directory to `%localappdata%`.
 `Element-99-SDK.project.gmx` can be opened and run with GM:S versions up to 1.4.
 
 ## Compiling Models
-Models can be exported from Blender using ![this addon](https://martincrownover.com/blender-addon-gm3d/).
+Models can be exported from Blender using [this addon](https://martincrownover.com/blender-addon-gm3d/).
